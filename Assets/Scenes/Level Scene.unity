@@ -1508,6 +1508,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6851f836e36951d48907cd50c44b8859, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _todoData: {fileID: 0}
 --- !u!1 &1076382584
 GameObject:
   m_ObjectHideFlags: 0
@@ -1780,8 +1781,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _player: {fileID: 2094327223}
   _sizeSwitchTime: 0.8
-  _minSize: 15
-  _medSize: 30
+  _minSize: 10
+  _medSize: 20
   _maxSize: 80
 --- !u!4 &1162192385
 Transform:

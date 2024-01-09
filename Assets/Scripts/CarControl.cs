@@ -37,7 +37,6 @@ public class CarControl : MonoBehaviour
     [SerializeField] private float _wheelBase = 2;
     [Header("Collide")]
     [SerializeField] private float _minimalReleaseForce = 30;
-    [SerializeField] private float _collisionTimeInterval = 2f;
 
     public const float velocityThreshold = 1f;
     private const float axisThreshold = 0.01f;
@@ -46,14 +45,11 @@ public class CarControl : MonoBehaviour
     private float _brakePedal = 0;
     private float _rotationControl = 0;
 
-    private float _collisionTimer = 0;
-
     private bool _nitro = false;
     private float _nitroTimer = 0;
 
     private bool _braking = false;
     private bool _occupied = false;
-    private bool _collided = false;
 
     private Rigidbody2D _body;
     private Vector2 _velocity = Vector2.zero;
@@ -105,14 +101,8 @@ public class CarControl : MonoBehaviour
 
         RaycastHit2D info = Physics2D.BoxCast(transform.position, transform.localScale, _body.rotation, transform.up, 1f);
 
-        Debug.DrawLine(transform.position, transform.position + transform.up * 1f, Color.blue);
-        if (info && !_collided && _occupied)
+        if (info && _occupied)
         {
-            _collided = true;
-            _collisionTimer = 0;
-
-            Debug.DrawLine(transform.position, info.point);
-
             var gameObject = info.transform.gameObject;
 
             if (gameObject.CompareTag(AiApi.playerTag))
@@ -126,15 +116,6 @@ public class CarControl : MonoBehaviour
                 mc.RecieveCollision(transform.up, CurrentSpeed);
             }
             _forwardSpeed *= 0.2f;
-        }
-        else
-        {
-            if (_collisionTimer > _collisionTimeInterval)
-            {
-                _collided = false;
-            }
-
-            _collisionTimer += Time.fixedDeltaTime;
         }
 
         _velocity *= 0.99f;
@@ -172,8 +153,10 @@ public class CarControl : MonoBehaviour
         if (force < _minimalReleaseForce)
             return;
 
-        if (Vector2.Dot(transform.up, direction) > 0.5f)
+        if (Vector2.Dot(transform.up, direction) < -0.5f)
         {
+            Debug.Log("Forward hit");
+
             _forwardSpeed *= 0.2f;
             return;
         }
