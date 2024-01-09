@@ -22,6 +22,10 @@ public class MovementControl : MonoBehaviour
     [SerializeField] private float _dashTime = 0.4f;
     [SerializeField] private float _dashCooldownTime = 0.1f;
 
+    [Header("Collide")]
+    [SerializeField] private float _minimalDeadSpeed = 10f;
+    [SerializeField] private float _afterCollisionTime = 0.5f;
+
     private const float _skinWidth = 0.02f;
     private const int _maxBounces = 5;
 
@@ -35,7 +39,7 @@ public class MovementControl : MonoBehaviour
     private bool _dashing;
     private float _dashTimer;
     private float _cooldownTimer;
-    private float _minimalDeadForce;
+    private float _collisionTimer;
 
     private void Start()
     {
@@ -51,6 +55,7 @@ public class MovementControl : MonoBehaviour
             case EntityState.Dead:
                 break;
             case EntityState.Alive:
+                _collisionTimer += Time.fixedDeltaTime;
                 _visuals.SetActive(true);
 
                 _body.isKinematic = false;
@@ -59,6 +64,7 @@ public class MovementControl : MonoBehaviour
                 WalkControls();
                 break;
             case EntityState.InCar:
+                _collisionTimer = 0;
                 _visuals.SetActive(false);
 
                 _body.isKinematic = true;
@@ -103,12 +109,12 @@ public class MovementControl : MonoBehaviour
 
     private float EvaluateDash(float x) => -2 * Mathf.Pow(_dashTime, -2) * (x - _dashTime);
 
-    public void RecieveCollision(Vector2 direction, float force)
+    public void RecieveCollision(Vector2 direction, float speed)
     {
-        if (force < _minimalDeadForce)
+        if (speed < _minimalDeadSpeed)
             return;
 
-        _velocity = direction * force;
+        _velocity = direction * speed;
 
         if (_state == EntityState.InCar)
         {
@@ -119,6 +125,10 @@ public class MovementControl : MonoBehaviour
         }
         else if (_state == EntityState.Alive)
         {
+            if (_collisionTimer < _afterCollisionTime)
+                return;
+            _collisionTimer = 0;
+
             _state = EntityState.Dead;
         }
     }

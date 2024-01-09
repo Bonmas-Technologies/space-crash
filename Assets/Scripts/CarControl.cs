@@ -35,8 +35,9 @@ public class CarControl : MonoBehaviour
     [Header("Rotation")]
     [SerializeField] private float _steerAngle = 40;
     [SerializeField] private float _wheelBase = 2;
+
     [Header("Collide")]
-    [SerializeField] private float _minimalReleaseForce = 30;
+    [SerializeField] private float _minimalReleaseSpeed = 30;
 
     public const float velocityThreshold = 1f;
     private const float axisThreshold = 0.01f;
@@ -99,7 +100,22 @@ public class CarControl : MonoBehaviour
         _forwardSpeed += (acceleration + brake + friction) * Time.fixedDeltaTime;
         _forwardSpeed = Mathf.Clamp(_forwardSpeed, -scaledMaxSpeed, scaledMaxSpeed);
 
-        RaycastHit2D info = Physics2D.BoxCast(transform.position, transform.localScale, _body.rotation, transform.up, 1f);
+        Collision();
+
+        _velocity *= 0.99f;
+        if (_velocity.sqrMagnitude < 2)
+            _velocity = Vector2.zero;
+
+        RotateAndMoveCar(_body.rotation);
+
+        CurrentSpeed = _forwardSpeed / Time.fixedDeltaTime;
+    }
+
+    private void Collision()
+    {
+        RaycastHit2D info = Physics2D.BoxCast(transform.position, transform.localScale, _body.rotation, _forwardSpeed * Time.fixedDeltaTime * transform.up, 1f);
+
+        Debug.DrawLine(transform.position, transform.position + _forwardSpeed * Time.fixedDeltaTime * transform.up);
 
         if (info && _occupied)
         {
@@ -115,16 +131,7 @@ public class CarControl : MonoBehaviour
                 var mc = gameObject.GetComponent<CarControl>();
                 mc.RecieveCollision(transform.up, CurrentSpeed);
             }
-            _forwardSpeed *= 0.2f;
         }
-
-        _velocity *= 0.99f;
-        if (_velocity.sqrMagnitude < 2)
-            _velocity = Vector2.zero;
-
-        RotateAndMoveCar(_body.rotation);
-
-        CurrentSpeed = _forwardSpeed / Time.fixedDeltaTime;
     }
 
     private float EvaluateSteerAngle() => Mathf.Clamp01(1 - Mathf.Abs(Mathf.Pow(_forwardSpeed / Time.fixedDeltaTime / (_maxSpeed + _maxSpeed / 10), 2)));
@@ -148,22 +155,14 @@ public class CarControl : MonoBehaviour
         _body.MovePosition((frontWheel + backWheel) / 2 + _velocity * Time.fixedDeltaTime);
     }
 
-    public void RecieveCollision(Vector2 direction, float force)
+    public void RecieveCollision(Vector2 direction, float speed)
     {
-        if (force < _minimalReleaseForce)
+        if (speed < _minimalReleaseSpeed)
             return;
 
-        if (Vector2.Dot(transform.up, direction) < -0.5f)
-        {
-            Debug.Log("Forward hit");
+        _velocity = direction * speed;
 
-            _forwardSpeed *= 0.2f;
-            return;
-        }
-
-        _velocity = direction * force;
-
-        OnCollision?.Invoke(direction, force);
+        OnCollision?.Invoke(direction, speed);
     }
 
     public void EnterCar() => _occupied = true;

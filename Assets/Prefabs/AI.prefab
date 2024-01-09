@@ -114,13 +114,14 @@ MonoBehaviour:
   _useMask:
     serializedVersion: 2
     m_Bits: 8
-  _carTag: Car
   _radius: 0.5
   _entitySpeed: 10
-  _useRadius: 1
+  _useRadius: 2
   _dashLength: 5
   _dashTime: 0.2
   _dashCooldownTime: 1
+  _minimalDeadSpeed: 10
+  _afterCollisionTime: 0.5
 --- !u!114 &299358750797689361
 MonoBehaviour:
   m_ObjectHideFlags: 0

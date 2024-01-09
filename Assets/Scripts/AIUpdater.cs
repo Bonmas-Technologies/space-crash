@@ -73,9 +73,13 @@ public class AIUpdater : MonoBehaviour
 
                 controller.SetTarget(enemy.Controller);
             }
-            else
+            else if (_player.State != EntityState.Dead)
             {
                 controller.SetTarget(_player);
+            }
+            else
+            {
+                controller.SetTarget(null);
             }
 
             controller.UpdateAI();

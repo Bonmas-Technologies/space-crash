@@ -47,6 +47,9 @@ public class AIControl : MonoBehaviour
 
         var state = _controller.State;
 
+        if (_target == null)
+            return;
+
         switch (state)
         {
             case EntityState.Alive:
