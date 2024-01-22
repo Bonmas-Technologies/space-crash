@@ -206,7 +206,7 @@ MonoBehaviour:
   _nitroTime: 1
   _nitroCooldown: 4
   _nitroMultipier: 2
-  _maxSpeed: 40
+  _maxSpeed: 50
   _acceleration: 0.5
   _brakeForce: 0.5
   _friction: 0.2
