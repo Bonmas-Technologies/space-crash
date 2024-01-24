@@ -43,7 +43,6 @@ public class HudTargeter : MonoBehaviour
     {
         if (AiApi.GetClosestCarPosition(_player.transform.position, out Vector2 position, _useLayer.value))
         {
-            Debug.Log("HERE");
             position -= (Vector2)_player.transform.position;
 
             float rotation = Mathf.Atan2(position.y, position.x) * Mathf.Rad2Deg;
